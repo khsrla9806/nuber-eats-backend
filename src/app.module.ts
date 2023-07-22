@@ -1,6 +1,7 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
+import * as Joi from 'joi'; // Joi는 Javascript로 되어있기 때문에 import 방법이 다름
 import { RestaurantsModule } from './restaurants/restaurants.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
@@ -11,6 +12,14 @@ import { ConfigModule } from '@nestjs/config';
       isGlobal: true, // 우리 애플레케이션 어디서든 ConfigModule에 접근이 가능하도록 설정
       envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.env.test',
       ignoreEnvFile: process.env.NODE_ENV === 'prod', // prod 상태에서는 env 파일을 사용해서 하지 않음
+      validationSchema: Joi.object({ // Joi 라이브러리를 이용하여 환경변수에 대한 유효성 검사를 진행할 수 있음
+        NODE_ENV: Joi.string().valid('dev', 'prod').required(),
+        DB_HOST: Joi.string().required(),
+        DB_PORT: Joi.string().required(),
+        DB_USERNAME: Joi.string().required(),
+        DB_PASSWORD: Joi.string().required(),
+        DB_NAME: Joi.string().required(),
+      }),
     }),
     TypeOrmModule.forRoot({
       type: "postgres",
