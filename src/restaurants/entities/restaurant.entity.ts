@@ -17,8 +17,8 @@ export class Restaurant {
     @Length(5, 10)
     name: string;
 
-    @Field(type => Boolean, { defaultValue: false }) // GraphQL의 스키마에 default 값이 false
-    @Column({ default: false }) // DB에서 default 값이 false
+    @Field(type => Boolean)
+    @Column()
     @IsOptional()
     @IsBoolean()
     isVegan: boolean;
