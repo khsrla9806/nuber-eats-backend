@@ -29,8 +29,8 @@ import { Restaurant } from './restaurants/entities/restaurant.entity';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      synchronize: true, // DB와 Nest 모듈의 동기화
-      logging: true, // 콘솔에 데이터베이스 관련 부분을 찍음
+      synchronize: process.env.NODE_ENV !== 'prod', // DB와 Nest 모듈의 동기화: 개발, 테스트에서만 true 유지
+      logging: process.env.NODE_ENV !== 'prod', // 콘솔에 데이터베이스 관련 부분을 찍음: 개발, 테스트에서만 true 유지
       entities: [Restaurant]
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
