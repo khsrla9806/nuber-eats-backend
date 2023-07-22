@@ -5,6 +5,7 @@ import * as Joi from 'joi'; // Joi는 Javascript로 되어있기 때문에 impor
 import { RestaurantsModule } from './restaurants/restaurants.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { Restaurant } from './restaurants/entities/restaurant.entity';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { ConfigModule } from '@nestjs/config';
       database: process.env.DB_NAME,
       synchronize: true, // DB와 Nest 모듈의 동기화
       logging: true, // 콘솔에 데이터베이스 관련 부분을 찍음
+      entities: [Restaurant]
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
