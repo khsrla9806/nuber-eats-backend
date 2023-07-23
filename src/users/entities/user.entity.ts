@@ -43,4 +43,14 @@ export class User extends CoreEntity {
             throw new InternalServerErrorException();
         }
     }
+
+    /* 로그인 시 입력받은 비밀번호를 Hash해서 현재 유저의 비밀번호와 동일한지 확인 */
+    async checkPassword(inputPassword: string): Promise<boolean> {
+        try {
+            return await bcrypt.compare(inputPassword, this.password);
+        } catch (e) {
+            console.log(e);
+            throw new InternalServerErrorException();
+        }
+    }
 }
