@@ -6,13 +6,15 @@ import { CreateAccountInput } from "./dtos/create-account.dto";
 import { LoginInput } from "./dtos/login.dto";
 import * as jwt from "jsonwebtoken";
 import { ConfigService } from "@nestjs/config";
+import { JwtService } from "src/jwt/jwt.service";
 
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectRepository(User) private readonly userRepository: Repository<User>,
-        private readonly config: ConfigService
+        private readonly config: ConfigService,
+        private readonly jwtService: JwtService
     ) {}
     
     /* ES6의 특징: {email, password, role}과 같은 방식으로 객체를 입력받을 수 있다. */
