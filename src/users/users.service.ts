@@ -4,8 +4,6 @@ import { User } from "./entities/user.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CreateAccountInput } from "./dtos/create-account.dto";
 import { LoginInput } from "./dtos/login.dto";
-import * as jwt from "jsonwebtoken";
-import { ConfigService } from "@nestjs/config";
 import { JwtService } from "src/jwt/jwt.service";
 
 
@@ -13,7 +11,6 @@ import { JwtService } from "src/jwt/jwt.service";
 export class UserService {
     constructor(
         @InjectRepository(User) private readonly userRepository: Repository<User>,
-        private readonly config: ConfigService,
         private readonly jwtService: JwtService
     ) {}
     
@@ -46,7 +43,8 @@ export class UserService {
             if (!isCollectPassword) {
                 return { ok: false, error: '잘못된 비밀번호 입니다.' };
             }
-            const token = jwt.sign({ id: user.id }, this.config.get('SECRET_KEY'));
+            const token = this.jwtService.sign(user.id);
+            
             return {
                 ok: true,
                 token: token
