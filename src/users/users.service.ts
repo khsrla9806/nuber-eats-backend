@@ -4,11 +4,16 @@ import { User } from "./entities/user.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CreateAccountInput } from "./dtos/create-account.dto";
 import { LoginInput } from "./dtos/login.dto";
+import * as jwt from "jsonwebtoken";
+import { ConfigService } from "@nestjs/config";
 
 
 @Injectable()
 export class UserService {
-    constructor(@InjectRepository(User) private readonly userRepository: Repository<User>) {}
+    constructor(
+        @InjectRepository(User) private readonly userRepository: Repository<User>,
+        private readonly config: ConfigService
+    ) {}
     
     /* ES6의 특징: {email, password, role}과 같은 방식으로 객체를 입력받을 수 있다. */
     async createAccount({email, password, role}: CreateAccountInput): Promise<{ ok: boolean, error?: string }> {
@@ -39,9 +44,10 @@ export class UserService {
             if (!isCollectPassword) {
                 return { ok: false, error: '잘못된 비밀번호 입니다.' };
             }
+            const token = jwt.sign({ id: user.id }, this.config.get('SECRET_KEY'));
             return {
                 ok: true,
-                token: 'JWT Token'
+                token: token
             }
         } catch (e) {
             return { ok: false, error: e};
