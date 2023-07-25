@@ -42,6 +42,7 @@ import { JwtMiddleware } from './jwt/jwt-middleware';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: true,
+      context: ({req}) => ({ user: req['user'] }) // Request 객체에 있는 'user'를 GraphQL에서 사용할 수 있도록 설정
     }),
     JwtModule.forRoot({
       privateKey: process.env.PRIVATE_KEY,
@@ -58,7 +59,7 @@ export class AppModule implements NestModule {
     /* 요청이 들어왔을 때 지나가는 Middleware를 AppModule에서 등록 */
     consumer.apply(JwtMiddleware).forRoutes({
       path: '/graphql', // 모든 Route 경로에서 오는 요청을 허용
-      method: RequestMethod.ALL // 모든 Http Method를 허용
+      method: RequestMethod.POST // GraphQL은 내부적으로 모든 요청을 POST로 보냅니다.
     });
 
 
