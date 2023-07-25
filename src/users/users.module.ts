@@ -6,6 +6,7 @@ import { UserResolver } from './users.resolver';
 
 @Module({
     imports: [TypeOrmModule.forFeature([User])], // Repository 가져오기
-    providers: [UserService, UserResolver]
+    providers: [UserService, UserResolver],
+    exports: [UserService] // UserService를 다른 곳에서 DI 받을 수 있도록 설정
 })
 export class UsersModule {}
