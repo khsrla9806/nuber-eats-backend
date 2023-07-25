@@ -3,6 +3,8 @@ import { User } from "./entities/user.entity";
 import { UserService } from "./users.service";
 import { CreateAccountInput, CreateAccountOutput } from "./dtos/create-account.dto";
 import { LoginInput, LoginOutput } from "./dtos/login.dto";
+import { UseGuards } from "@nestjs/common";
+import { AuthGuard } from "src/auth/auth.guard";
 
 @Resolver(of => User)
 export class UserResolver {
@@ -31,11 +33,8 @@ export class UserResolver {
     }
 
     @Query(returns => User)
-    me(@Context() context) {
-        if (!context.user) {
-            return;
-        }
+    @UseGuards(AuthGuard) // 우리가 만든 AuthGuard를 me() 쿼리에 적용
+    me() {
         
-        return context.user;
     }
 }
