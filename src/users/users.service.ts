@@ -5,6 +5,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { CreateAccountInput } from "./dtos/create-account.dto";
 import { LoginInput } from "./dtos/login.dto";
 import { JwtService } from "src/jwt/jwt.service";
+import { EditProfileInput } from "./dtos/edit-profile.dto";
 
 
 @Injectable()
@@ -56,5 +57,18 @@ export class UserService {
 
     async findById(id: number): Promise<User> {
         return this.userRepository.findOne({ where: { id } });
+    }
+
+    async editProfile(userId: number, { email, password }: EditProfileInput): Promise<User> {
+        const user = await this.userRepository.findOne({ where: { id: userId } });
+        if (email) {
+            user.email = email;
+        }
+        if (password) {
+            user.password = password;
+        }
+        // update() 메서드를 사용하면 @BeforeUpdate를 호출시킬 수가 없다.
+        // save() 메서드를 사용하면 기존 Entity는 udpate하고, 새로운 Entity는 insert 한다.
+        return this.userRepository.save(user);
     }
 }
