@@ -5,6 +5,7 @@ import { CreateAccountInput, CreateAccountOutput } from "./dtos/create-account.d
 import { LoginInput, LoginOutput } from "./dtos/login.dto";
 import { UseGuards } from "@nestjs/common";
 import { AuthGuard } from "src/auth/auth.guard";
+import { AuthUser } from "src/auth/auth-user.decorator";
 
 @Resolver(of => User)
 export class UserResolver {
@@ -34,7 +35,7 @@ export class UserResolver {
 
     @Query(returns => User)
     @UseGuards(AuthGuard) // 우리가 만든 AuthGuard를 me() 쿼리에 적용
-    me() {
-        
+    me(@AuthUser() authUser: User) {
+        return authUser;
     }
 }
