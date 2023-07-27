@@ -45,7 +45,11 @@ export class UserService {
 
     async login({ email, password }: LoginInput): Promise<{ ok: boolean, error?: string, token?: string}> {
         try {
-            const user = await this.userRepository.findOne({ where: { email }});
+            const user = await this.userRepository.findOne({ 
+                where: { email }, 
+                select: ['password', 'id'] // password와 id는 확실하게 Select하겠다는 옵션 => password를 Entity에서 select: false 해줬기 때문에
+            });
+
             if (!user) {
                 return { ok: false, error: '존재하지 않는 유저입니다.' };
             }

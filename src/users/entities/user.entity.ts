@@ -25,7 +25,7 @@ export class User extends CoreEntity {
     email: string;
 
     @Field(type => String)
-    @Column()
+    @Column({ select: false })
     password: string;
 
     @Field(type => UserRole) // GraphQL에 등록한 enum을 @Field의 type으로 지정
@@ -41,11 +41,13 @@ export class User extends CoreEntity {
     @BeforeInsert()
     @BeforeUpdate()
     async hashPassword(): Promise<void> {
-        try {
-            this.password = await bcrypt.hash(this.password, 10); // 두 번째 인자가 round 값 (bcrypt 추천 값)
-        } catch (e) {
-            console.log(e);
-            throw new InternalServerErrorException();
+        if (this.password) {
+            try {
+                this.password = await bcrypt.hash(this.password, 10); // 두 번째 인자가 round 값 (bcrypt 추천 값)
+            } catch (e) {
+                console.log(e);
+                throw new InternalServerErrorException();
+            }
         }
     }
 
