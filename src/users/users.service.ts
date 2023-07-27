@@ -124,7 +124,8 @@ export class UserService {
 
             if (verification) {
                 verification.user.verified = true;
-                this.userRepository.save(verification.user);
+                await this.userRepository.save(verification.user);
+                await this.verificationRepository.delete(verification.id); // 인증이 끝난 verification은 DB에서 삭제
                 
                 return {
                     ok: true
