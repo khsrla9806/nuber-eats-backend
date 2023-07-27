@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, InternalServerErrorException } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { User } from "./entities/user.entity";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -84,5 +84,22 @@ export class UserService {
         // update() 메서드를 사용하면 @BeforeUpdate를 호출시킬 수가 없다.
         // save() 메서드를 사용하면 기존 Entity는 udpate하고, 새로운 Entity는 insert 한다.
         return this.userRepository.save(user);
+    }
+
+    async verifyEmail(code: string): Promise<Boolean> {
+        try {
+            const verification = await this.verificationRepository.findOne({ where: { code: code }, relations: ['user'] });
+
+            if (verification) {
+                verification.user.verified = true;
+                this.userRepository.save(verification.user);
+                
+                return true;
+            }
+
+            throw new BadRequestException("존재하지 않는 Code 입니다. " + code);
+        } catch (e) {
+            throw e;
+        }
     }
 }
