@@ -33,6 +33,10 @@ export class User extends CoreEntity {
     @Column({type: 'enum', enum: UserRole})
     role: UserRole;
 
+    @Column({ default: false })
+    @Field(type => Boolean)
+    verified: boolean
+
     /* DB에 Insert 되기 전에 비밀번호를 해싱해서 넣는다. (round = 10, 총 10번 진행해라) */
     @BeforeInsert()
     @BeforeUpdate()

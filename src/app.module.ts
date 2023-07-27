@@ -11,6 +11,7 @@ import { CommonModule } from './common/common.module';
 import { User } from './users/entities/user.entity';
 import { JwtModule } from './jwt/jwt.module';
 import { JwtMiddleware } from './jwt/jwt-middleware';
+import { Verification } from './users/entities/varification.entity';
 
 @Module({
   imports: [
@@ -37,7 +38,7 @@ import { JwtMiddleware } from './jwt/jwt-middleware';
       database: process.env.DB_NAME,
       synchronize: process.env.NODE_ENV !== 'prod', // DB와 Nest 모듈의 동기화: 개발, 테스트에서만 true 유지
       logging: process.env.NODE_ENV !== 'prod', // 콘솔에 데이터베이스 관련 부분을 찍음: 개발, 테스트에서만 true 유지
-      entities: [Restaurant, User]
+      entities: [Restaurant, User, Verification]
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
