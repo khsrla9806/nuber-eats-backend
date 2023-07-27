@@ -6,12 +6,14 @@ import { CreateAccountInput } from "./dtos/create-account.dto";
 import { LoginInput } from "./dtos/login.dto";
 import { JwtService } from "src/jwt/jwt.service";
 import { EditProfileInput } from "./dtos/edit-profile.dto";
+import { Verification } from "./entities/varification.entity";
 
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectRepository(User) private readonly userRepository: Repository<User>,
+        @InjectRepository(Verification) private readonly verificationRepository: Repository<Verification>,
         private readonly jwtService: JwtService
     ) {}
     
@@ -24,8 +26,16 @@ export class UserService {
                 return { ok: false, error: '해당 이메일을 가진 회원이 이미 존재합니다.' };
             }
 
-            const user = this.userRepository.create({email, password, role});
-            await this.userRepository.save(user);
+            
+            const user = await this.userRepository.save(this.userRepository.create({
+                email, 
+                password, 
+                role
+            }));
+
+            await this.verificationRepository.save(this.verificationRepository.create({
+                user: user // User와 OneToOne 관계 형성
+            }))
 
             return { ok: true };
         } catch (e) {
@@ -63,6 +73,10 @@ export class UserService {
         const user = await this.userRepository.findOne({ where: { id: userId } });
         if (email) {
             user.email = email;
+            user.verified = false;
+            await this.verificationRepository.save(this.verificationRepository.create({
+                user: user
+            }))
         }
         if (password) {
             user.password = password;
