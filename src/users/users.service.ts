@@ -1,12 +1,14 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { User } from "./entities/user.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CreateAccountInput } from "./dtos/create-account.dto";
 import { LoginInput } from "./dtos/login.dto";
 import { JwtService } from "src/jwt/jwt.service";
-import { EditProfileInput } from "./dtos/edit-profile.dto";
+import { EditProfileInput, EditProfileOutput } from "./dtos/edit-profile.dto";
 import { Verification } from "./entities/varification.entity";
+import { UserProfileOutput } from "./dtos/user-profile.dto";
+import { VerifyEmailOutput } from "./dtos/verify-email.dto";
 
 
 @Injectable()
@@ -69,28 +71,54 @@ export class UserService {
         }
     }
 
-    async findById(id: number): Promise<User> {
-        return this.userRepository.findOne({ where: { id } });
-    }
+    async findById(id: number): Promise<UserProfileOutput> {
+        try {
+            const user = await this.userRepository.findOne({ where: { id } });
+            if (!user) {
+                throw Error();
+            }
 
-    async editProfile(userId: number, { email, password }: EditProfileInput): Promise<User> {
-        const user = await this.userRepository.findOne({ where: { id: userId } });
-        if (email) {
-            user.email = email;
-            user.verified = false;
-            await this.verificationRepository.save(this.verificationRepository.create({
+            return {
+                ok: true,
                 user: user
-            }))
+            }
+        } catch (e) {
+            return {
+                ok: false,
+                error: '유저를 찾을 수 없습니다.'
+            }
         }
-        if (password) {
-            user.password = password;
-        }
-        // update() 메서드를 사용하면 @BeforeUpdate를 호출시킬 수가 없다.
-        // save() 메서드를 사용하면 기존 Entity는 udpate하고, 새로운 Entity는 insert 한다.
-        return this.userRepository.save(user);
     }
 
-    async verifyEmail(code: string): Promise<Boolean> {
+    async editProfile(userId: number, { email, password }: EditProfileInput): Promise<EditProfileOutput> {
+        try {
+            const user = await this.userRepository.findOne({ where: { id: userId } });
+            if (email) {
+                user.email = email;
+                user.verified = false;
+                await this.verificationRepository.save(this.verificationRepository.create({
+                    user: user
+                }))
+            }
+            if (password) {
+                user.password = password;
+            }
+            // update() 메서드를 사용하면 @BeforeUpdate를 호출시킬 수가 없다.
+            // save() 메서드를 사용하면 기존 Entity는 udpate하고, 새로운 Entity는 insert 한다.
+            await this.userRepository.save(user);
+
+            return {
+                ok: true
+            }
+        } catch (e) {
+            return {
+                ok: false,
+                error: e
+            }
+        }
+    }
+
+    async verifyEmail(code: string): Promise<VerifyEmailOutput> {
         try {
             const verification = await this.verificationRepository.findOne({ where: { code: code }, relations: ['user'] });
 
@@ -98,12 +126,17 @@ export class UserService {
                 verification.user.verified = true;
                 this.userRepository.save(verification.user);
                 
-                return true;
+                return {
+                    ok: true
+                }
             }
 
-            throw new BadRequestException("존재하지 않는 Code 입니다. " + code);
+            throw Error("존재하지 않는 Code 입니다. " + code);
         } catch (e) {
-            throw e;
+            return {
+                ok: false,
+                error: e
+            }
         }
     }
 }
